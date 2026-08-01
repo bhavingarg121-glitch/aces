@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>GDG Chapter Lead Poster — Full Editor</title>
+<title>GDG Chapter Lead Poster — Smart Editor</title>
 <style>
   :root{
     --blue:#1a73e8; --blue-dark:#174ea6; --red:#ea4335; --green:#34a853; --yellow:#fbbc04;
@@ -30,6 +30,13 @@
   .toolbar button.danger{background:#c62828;}
   .toolbar button:hover{filter:brightness(1.1);}
   .toolbar .hint{color:#666;font-size:12px;}
+  #statusMsg{
+    display:none; position:fixed; top:14px; left:50%; transform:translateX(-50%);
+    background:#111; color:#fff; padding:10px 18px; border-radius:30px; font-size:13px;
+    z-index:2000; box-shadow:0 6px 20px rgba(0,0,0,.3);
+  }
+  #statusMsg .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--blue);margin-right:8px;animation:pulse 1s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
 
   /* ===== POSTER STAGE ===== */
   #stage{ width:1080px; }
@@ -38,10 +45,7 @@
     position:relative; overflow:hidden; box-shadow:0 10px 40px rgba(0,0,0,.25);
   }
 
-  /* generic draggable element wrapper */
-  .element{
-    position:absolute; z-index:5;
-  }
+  .element{ position:absolute; z-index:5; }
   .element.decor{ z-index:1; }
   .el-toolbar{
     position:absolute; top:-34px; left:0; display:none; gap:4px;
@@ -69,18 +73,60 @@
     display:none;
   }
   .element:hover .resize-handle, .element.active .resize-handle{ display:block; }
-
   .del-btn{ background:#c62828 !important; }
 
-  /* decorative dots */
   .dots{ position:absolute; width:180px;height:180px; background-image:radial-gradient(rgba(26,115,232,.35) 2px, transparent 2px); background-size:16px 16px;}
+
+  /* ===== SMART HEADER ===== */
+  .smart-header{
+    width:1080px; padding:44px 56px 20px 56px;
+    display:flex; flex-direction:column; gap:14px;
+  }
+  .header-row{
+    display:flex; align-items:center; justify-content:space-between; gap:20px;
+  }
+  .header-left{ display:flex; align-items:center; gap:16px; }
+  .header-left .gdg-logo-slot{ width:88px;height:60px; flex-shrink:0; position:relative; }
+  .header-left .gdg-text h1{
+    margin:0; font-size:32px; font-weight:700; color:#2b2b2b; letter-spacing:.2px; outline:none;
+  }
+  .header-left .gdg-text .sub{
+    margin-top:3px; font-size:15.5px; color:var(--blue); font-weight:500; outline:none;
+  }
+  .header-right{
+    display:flex; align-items:center; gap:14px;
+  }
+  .college-logo-slot{
+    width:64px; height:64px; flex-shrink:0; position:relative;
+    border-radius:10px; overflow:visible;
+  }
+  .header-divider{
+    height:1px; width:100%;
+    background:linear-gradient(to right, rgba(26,115,232,.35), rgba(26,115,232,.05));
+  }
+  .header-sub-row{
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  }
+  .header-sub-row .content{
+    font-size:15px; font-weight:600; color:#3c4257; letter-spacing:.2px; outline:none;
+  }
+  .header-sub-row .pill{
+    background:rgba(26,115,232,.1); color:var(--blue); font-size:12px; font-weight:700;
+    padding:4px 10px; border-radius:20px; letter-spacing:.3px;
+  }
+  .placeholder-logo{
+    display:flex; align-items:center; justify-content:center; text-align:center;
+    background:rgba(26,115,232,.10); border:2px dashed var(--blue); border-radius:10px;
+    color:var(--blue); font-size:10.5px; font-weight:600; cursor:pointer; width:100%; height:100%;
+    line-height:1.2; padding:4px;
+  }
+  .logo-img{ display:block; }
 
   /* photo group */
   .photo-bg-circle{ position:absolute; right:-120px; top:60px; width:560px;height:560px; border-radius:50%; background:radial-gradient(circle at 30% 30%, #5aa8ff, #1a73e8 70%); z-index:0;}
   .photo-bg-circle2{ position:absolute; right:-260px; bottom:-40px; width:520px;height:520px; border-radius:50%; background:linear-gradient(160deg,#1a73e8,#7db8ff); z-index:0;}
   .code-snippet{ position:absolute; left:20px; top:110px; width:260px; color:rgba(255,255,255,.55); font-family:'Consolas','Courier New',monospace; font-size:13px; line-height:1.5; white-space:pre; z-index:1; pointer-events:none;}
-  #photoImg{ position:absolute; right:20px; top:70px; width:560px; height:960px; object-fit:cover; object-position:center top; z-index:1; filter:grayscale(1) contrast(1.05);
-    -webkit-mask-image:linear-gradient(to bottom, black 85%, transparent 100%); mask-image:linear-gradient(to bottom, black 85%, transparent 100%); }
+  #photoImg{ position:absolute; z-index:1; }
   .photo-placeholder-label{ position:absolute; right:20px; top:70px; width:560px;height:960px; display:flex; align-items:center; justify-content:center; text-align:center; color:#fff; font-size:16px; font-weight:600; background:rgba(26,115,232,.35); border:3px dashed rgba(255,255,255,.8); border-radius:16px; z-index:2; cursor:pointer; padding:20px;}
 
   .quote-mark{ font-size:140px; font-weight:800; color:#dbe6f7; font-family:Georgia, serif; user-select:none; }
@@ -104,13 +150,6 @@
   .cta{ text-align:right; font-size:19px; line-height:1.3; flex-shrink:0;}
   .cta .hl{color:#4c9bff;font-weight:800;}
 
-  .logo-img{ display:block; }
-  .placeholder-logo{
-    display:flex; align-items:center; justify-content:center; text-align:center;
-    background:rgba(26,115,232,.12); border:2px dashed var(--blue); border-radius:10px;
-    color:var(--blue); font-size:12px; font-weight:600; cursor:pointer; width:100%; height:100%;
-  }
-
   @media (max-width: 1120px){ #stage{ width:918px; } #poster{ transform:scale(0.85); transform-origin: top left; } }
   @media (max-width: 950px){ #stage{ width:702px; } #poster{ transform:scale(0.65); transform-origin: top left; } }
   @media (max-width: 700px){ #stage{ width:454px; } #poster{ transform:scale(0.42); transform-origin: top left; } }
@@ -118,16 +157,18 @@
 </head>
 <body>
 
+<div id="statusMsg"><span class="dot"></span><span id="statusText">Working...</span></div>
+
 <div class="toolbar">
-  <div class="title">🎛 Full Poster Editor — everything is movable, resizable and editable</div>
+  <div class="title">🎛 Smart Poster Editor</div>
   <div class="hint">
-    • Hover any element to see its mini toolbar: <b>⠿</b> drag to reposition, <b>A+ / A-</b> resize text, colour dots change text colour, <b>📷</b> replace image/logo, <b>×</b> delete.<br>
-    • Drag the blue circle in an image's bottom-right corner to resize it. Click any text directly to type.
+    • Upload your <b>photo</b> and the background is removed automatically, then the cutout is auto-sized and dropped into the frame.<br>
+    • Upload a <b>logo</b> (GDG mark / college logo) and a white/plain background is auto-cleaned and the logo auto-cropped to size.<br>
+    • Header logos, titles and the college/dept/forum line auto-align in a row — no manual dragging needed there. Everything else: hover for ⠿ drag, A+/A- resize, 📷 replace, × delete.
   </div>
   <div class="row">
     <button id="addText">+ Add text box</button>
     <button id="addLogo">+ Add logo / image</button>
-    <button class="secondary" id="addHeaderSet">+ Add College / Dept / Forum header block</button>
     <button class="secondary" id="downloadBtn">⬇ Download as PNG</button>
     <button class="danger" id="resetBtn">↺ Reset layout</button>
   </div>
@@ -139,39 +180,47 @@
   <div class="element decor" style="left:900px;top:40px;width:180px;height:180px;"><div class="dots"></div></div>
   <div class="element decor" style="left:0px;top:1150px;width:160px;height:160px;"><div class="dots"></div></div>
 
-  <!-- header logo -->
-  <div class="element" data-kind="image" style="left:52px;top:48px;width:96px;height:64px;">
-    <div class="el-toolbar"><span class="handle">⠿</span><button class="upload-btn">📷</button><button class="del-btn">×</button></div>
-    <svg class="logo-img" viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
-      <polygon points="10,10 45,40 10,70" fill="#ea4335"/>
-      <polygon points="55,10 90,40 55,70" fill="#34a853"/>
-      <polygon points="35,55 65,35 65,55 50,70" fill="#4285f4"/>
-      <polygon points="70,40 100,20 100,55" fill="#fbbc04"/>
-    </svg>
-    <img class="logo-img" style="display:none;width:100%;height:100%;object-fit:contain;">
-    <div class="resize-handle"></div>
-  </div>
-
-  <!-- header text -->
-  <div class="element" style="left:164px;top:50px;width:600px;">
-    <div class="el-toolbar">
-      <span class="handle">⠿</span><button class="fsize" data-d="-2">A-</button><button class="fsize" data-d="2">A+</button>
-      <span class="swatch" style="background:#2b2b2b" data-c="#2b2b2b"></span><span class="swatch" style="background:#1a73e8" data-c="#1a73e8"></span>
-      <button class="del-btn">×</button>
+  <!-- ===== SMART HEADER (auto-layout) ===== -->
+  <div class="element" style="left:0px;top:0px;">
+    <div class="el-toolbar"><span class="handle">⠿</span></div>
+    <div class="smart-header">
+      <div class="header-row">
+        <div class="header-left">
+          <div class="gdg-logo-slot" data-kind="image" data-logo-type="mark">
+            <div class="el-toolbar" style="top:-30px;"><button class="upload-btn">📷</button></div>
+            <svg class="logo-img" viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+              <polygon points="10,10 45,40 10,70" fill="#ea4335"/>
+              <polygon points="55,10 90,40 55,70" fill="#34a853"/>
+              <polygon points="35,55 65,35 65,55 50,70" fill="#4285f4"/>
+              <polygon points="70,40 100,20 100,55" fill="#fbbc04"/>
+            </svg>
+            <img class="logo-img" style="display:none;width:100%;height:100%;object-fit:contain;">
+          </div>
+          <div class="gdg-text">
+            <h1 class="content" contenteditable="true">Google Developer Groups</h1>
+            <div class="sub content" contenteditable="true">On Campus &nbsp;•&nbsp; Priyadarshini College Of Engineering</div>
+          </div>
+        </div>
+        <div class="header-right">
+          <div class="college-logo-slot" data-kind="image" data-logo-type="plain">
+            <div class="el-toolbar" style="top:-30px;left:auto;right:0;"><button class="upload-btn">📷</button></div>
+            <div class="placeholder-logo upload-btn">College<br>Logo</div>
+            <img class="logo-img" style="display:none;width:100%;height:100%;object-fit:contain;">
+          </div>
+        </div>
+      </div>
+      <div class="header-divider"></div>
+      <div class="header-sub-row">
+        <span class="pill">DEPARTMENT</span>
+        <div class="content" contenteditable="true">Computer Science &amp; Engineering</div>
+        <span class="pill" style="margin-left:14px;">FORUM</span>
+        <div class="content" contenteditable="true">GDG Campus Forum</div>
+      </div>
     </div>
-    <div class="content" contenteditable="true" style="font-size:34px;font-weight:700;color:#2b2b2b;">Google Developer Groups</div>
-  </div>
-  <div class="element" style="left:164px;top:96px;width:600px;">
-    <div class="el-toolbar">
-      <span class="handle">⠿</span><button class="fsize" data-d="-1">A-</button><button class="fsize" data-d="1">A+</button>
-      <span class="swatch" style="background:#1a73e8" data-c="#1a73e8"></span><span class="swatch" style="background:#333" data-c="#333"></span>
-      <button class="del-btn">×</button>
-    </div>
-    <div class="content" contenteditable="true" style="font-size:17px;font-weight:500;color:#1a73e8;">On Campus &nbsp;•&nbsp; Your College Name</div>
   </div>
 
   <!-- photo group -->
-  <div class="element" data-kind="image" style="left:440px;top:230px;width:640px;height:1050px;">
+  <div class="element" data-kind="image" data-logo-type="person" style="left:440px;top:250px;width:640px;height:1030px;overflow:visible;">
     <div class="el-toolbar"><span class="handle">⠿</span><button class="upload-btn">📷</button><button class="del-btn">×</button></div>
     <div class="photo-bg-circle"></div>
     <div class="photo-bg-circle2"></div>
@@ -185,7 +234,7 @@
     print(x);
 }</div>
     <img class="logo-img" id="photoImg" style="display:none;">
-    <div class="photo-placeholder-label upload-btn">Click 📷 above (or here)<br>to add your photo</div>
+    <div class="photo-placeholder-label upload-btn">Click 📷 above (or here)<br>to add your photo —<br>background removes automatically</div>
     <div class="resize-handle"></div>
   </div>
 
@@ -266,13 +315,19 @@
 <input type="file" id="fileInput" accept="image/*" style="display:none;">
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation@0.1/selfie_segmentation.js"></script>
 <script>
 const poster = document.getElementById('poster');
 const fileInput = document.getElementById('fileInput');
+const statusMsg = document.getElementById('statusMsg');
+const statusText = document.getElementById('statusText');
 let zTop = 10;
 let activeUploadTarget = null;
+let segmenter = null;
 
 function getScale(){ return poster.getBoundingClientRect().width / 1080; }
+function showStatus(msg){ statusText.textContent = msg; statusMsg.style.display = 'block'; }
+function hideStatus(){ statusMsg.style.display = 'none'; }
 
 // ---------- DRAG ----------
 function enableDrag(handle){
@@ -301,7 +356,7 @@ function enableDrag(handle){
   });
 }
 
-// ---------- RESIZE (images) ----------
+// ---------- RESIZE ----------
 function enableResize(handleEl){
   const el = handleEl.closest('.element');
   handleEl.addEventListener('pointerdown', (e)=>{
@@ -349,26 +404,168 @@ function enableSwatch(sw){
 // ---------- UPLOAD ----------
 function enableUpload(btn){
   btn.addEventListener('click', ()=>{
-    activeUploadTarget = btn.closest('.element');
+    activeUploadTarget = btn.closest('[data-kind="image"]');
     fileInput.click();
   });
 }
-fileInput.addEventListener('change', (e)=>{
+
+function loadImageFile(file){
+  return new Promise((resolve)=>{
+    const reader = new FileReader();
+    reader.onload = (ev)=>{
+      const img = new Image();
+      img.onload = ()=>resolve(img);
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+async function getSegmenter(){
+  if(segmenter) return segmenter;
+  showStatus('Loading background-removal model…');
+  segmenter = new SelfieSegmentation({locateFile: (f)=>`https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation@0.1/${f}`});
+  segmenter.setOptions({modelSelection:1});
+  return segmenter;
+}
+
+// Remove background from a PERSON photo using selfie segmentation, then auto-crop to subject bbox
+async function processPersonPhoto(img){
+  showStatus('Removing background…');
+  const seg = await getSegmenter();
+  const w = img.naturalWidth, h = img.naturalHeight;
+
+  const maskCanvas = await new Promise((resolve)=>{
+    seg.onResults((results)=>{
+      const c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      const cx = c.getContext('2d');
+      cx.drawImage(results.segmentationMask, 0, 0, w, h);
+      resolve(c);
+    });
+    seg.send({image: img});
+  });
+
+  const srcCanvas = document.createElement('canvas');
+  srcCanvas.width = w; srcCanvas.height = h;
+  const srcCtx = srcCanvas.getContext('2d');
+  srcCtx.drawImage(img, 0, 0, w, h);
+  const srcData = srcCtx.getImageData(0,0,w,h);
+  const maskData = maskCanvas.getContext('2d').getImageData(0,0,w,h);
+
+  let minX=w, minY=h, maxX=0, maxY=0;
+  for(let i=0;i<w*h;i++){
+    const alpha = maskData.data[i*4]; // grayscale mask stored in R channel
+    srcData.data[i*4+3] = alpha;
+    if(alpha > 25){
+      const x = i % w, y = Math.floor(i / w);
+      if(x<minX)minX=x; if(x>maxX)maxX=x; if(y<minY)minY=y; if(y>maxY)maxY=y;
+    }
+  }
+  srcCtx.putImageData(srcData,0,0);
+
+  if(maxX<=minX || maxY<=minY){ minX=0;minY=0;maxX=w;maxY=h; } // fallback: no confident subject found
+
+  const pad = Math.round(0.03*(maxX-minX));
+  minX = Math.max(0,minX-pad); minY = Math.max(0,minY-pad*2);
+  maxX = Math.min(w,maxX+pad); maxY = Math.min(h,maxY+pad*0.5);
+
+  const cw = maxX-minX, ch = maxY-minY;
+  const outCanvas = document.createElement('canvas');
+  outCanvas.width = cw; outCanvas.height = ch;
+  outCanvas.getContext('2d').drawImage(srcCanvas, minX, minY, cw, ch, 0, 0, cw, ch);
+
+  hideStatus();
+  return { dataUrl: outCanvas.toDataURL('image/png'), width: cw, height: ch };
+}
+
+// Remove near-white/near-plain background from a LOGO, then auto-crop to content bbox
+function processLogoImage(img){
+  showStatus('Cleaning logo background…');
+  const w = img.naturalWidth, h = img.naturalHeight;
+  const c = document.createElement('canvas');
+  c.width = w; c.height = h;
+  const ctx = c.getContext('2d');
+  ctx.drawImage(img,0,0,w,h);
+  const data = ctx.getImageData(0,0,w,h);
+
+  // sample corner color as the "background" reference
+  const idx0 = 0;
+  const bgR = data.data[idx0], bgG = data.data[idx0+1], bgB = data.data[idx0+2];
+  const isBgLike = (r,g,b)=> Math.abs(r-bgR)<26 && Math.abs(g-bgG)<26 && Math.abs(b-bgB)<26;
+  const isNearWhite = (r,g,b)=> r>238 && g>238 && b>238;
+
+  let minX=w,minY=h,maxX=0,maxY=0;
+  for(let i=0;i<w*h;i++){
+    const r=data.data[i*4], g=data.data[i*4+1], b=data.data[i*4+2];
+    if(isBgLike(r,g,b) || isNearWhite(r,g,b)){
+      data.data[i*4+3] = 0;
+    } else {
+      const x = i % w, y = Math.floor(i / w);
+      if(x<minX)minX=x; if(x>maxX)maxX=x; if(y<minY)minY=y; if(y>maxY)maxY=y;
+    }
+  }
+  ctx.putImageData(data,0,0);
+  if(maxX<=minX || maxY<=minY){ minX=0;minY=0;maxX=w;maxY=h; }
+  const pad = Math.round(0.04*Math.max(maxX-minX,maxY-minY));
+  minX=Math.max(0,minX-pad); minY=Math.max(0,minY-pad);
+  maxX=Math.min(w,maxX+pad); maxY=Math.min(h,maxY+pad);
+  const cw=maxX-minX, ch=maxY-minY;
+  const out = document.createElement('canvas');
+  out.width=cw; out.height=ch;
+  out.getContext('2d').drawImage(c, minX,minY,cw,ch, 0,0,cw,ch);
+  hideStatus();
+  return { dataUrl: out.toDataURL('image/png'), width: cw, height: ch };
+}
+
+fileInput.addEventListener('change', async (e)=>{
   const file = e.target.files[0];
   if(!file || !activeUploadTarget) return;
-  const reader = new FileReader();
-  reader.onload = (ev)=>{
-    let img = activeUploadTarget.querySelector('img.logo-img');
-    let svg = activeUploadTarget.querySelector('svg.logo-img');
-    let placeholder = activeUploadTarget.querySelector('.photo-placeholder-label');
-    if(img){
-      img.src = ev.target.result;
-      img.style.display = 'block';
+  const target = activeUploadTarget;
+  const logoType = target.dataset.logoType || 'plain';
+  const img = await loadImageFile(file);
+  let result;
+  try{
+    if(logoType === 'person'){
+      result = await processPersonPhoto(img);
+    } else {
+      result = processLogoImage(img);
     }
-    if(svg) svg.style.display = 'none';
-    if(placeholder) placeholder.style.display = 'none';
-  };
-  reader.readAsDataURL(file);
+  }catch(err){
+    hideStatus();
+    console.error(err);
+    // fallback: use original image untouched if processing fails (e.g. offline)
+    result = { dataUrl: img.src, width: img.naturalWidth, height: img.naturalHeight };
+  }
+
+  const outImg = target.querySelector('img.logo-img');
+  const svg = target.querySelector('svg.logo-img');
+  const placeholder = target.querySelector('.photo-placeholder-label, .placeholder-logo');
+  outImg.src = result.dataUrl;
+  outImg.style.display = 'block';
+  if(svg) svg.style.display = 'none';
+  if(placeholder) placeholder.style.display = 'none';
+
+  // ----- AUTO-FIT LAYOUT -----
+  if(logoType === 'person'){
+    // fill the frame height, bottom-align, centered horizontally, based on cutout aspect ratio
+    const frame = target; // .element acting as frame
+    const frameH = frame.offsetHeight;
+    const aspect = result.width / result.height;
+    const fitH = frameH;
+    const fitW = fitH * aspect;
+    outImg.style.height = fitH + 'px';
+    outImg.style.width = fitW + 'px';
+    outImg.style.left = ((frame.offsetWidth - fitW)/2) + 'px';
+    outImg.style.top = '0px';
+    outImg.style.objectFit = 'contain';
+  } else {
+    // logos: fit within their slot, preserving aspect
+    outImg.style.width = '100%';
+    outImg.style.height = '100%';
+    outImg.style.objectFit = 'contain';
+  }
+
   fileInput.value = '';
 });
 
@@ -380,7 +577,7 @@ function enableDelete(btn){
   });
 }
 
-// ---------- WIRE UP EXISTING ELEMENTS ----------
+// ---------- WIRE UP ----------
 function wireElement(el){
   el.querySelectorAll('.handle').forEach(enableDrag);
   el.querySelectorAll('.resize-handle').forEach(enableResize);
@@ -412,7 +609,7 @@ document.getElementById('addText').addEventListener('click', ()=>{
 document.getElementById('addLogo').addEventListener('click', ()=>{
   const el = document.createElement('div');
   el.className = 'element';
-  el.dataset.kind = 'image';
+  el.dataset.kind = 'image'; el.dataset.logoType = 'plain';
   el.style.left = '80px'; el.style.top = '160px'; el.style.width = '120px'; el.style.height = '120px';
   el.innerHTML = `
     <div class="el-toolbar"><span class="handle">⠿</span><button class="upload-btn">📷</button><button class="del-btn">×</button></div>
@@ -423,44 +620,18 @@ document.getElementById('addLogo').addEventListener('click', ()=>{
   wireElement(el);
 });
 
-// ---------- ADD COLLEGE / DEPT / FORUM HEADER BLOCK ----------
-document.getElementById('addHeaderSet').addEventListener('click', ()=>{
-  // logo slot
-  const logoEl = document.createElement('div');
-  logoEl.className = 'element'; logoEl.dataset.kind='image';
-  logoEl.style.left = '860px'; logoEl.style.top = '48px'; logoEl.style.width = '80px'; logoEl.style.height = '80px';
-  logoEl.innerHTML = `
-    <div class="el-toolbar"><span class="handle">⠿</span><button class="upload-btn">📷</button><button class="del-btn">×</button></div>
-    <div class="placeholder-logo upload-btn">College<br>Logo</div>
-    <img class="logo-img" style="display:none;width:100%;height:100%;object-fit:contain;">
-    <div class="resize-handle"></div>`;
-  poster.appendChild(logoEl); wireElement(logoEl);
-
-  // text block: college / dept / forum
-  const textEl = document.createElement('div');
-  textEl.className = 'element';
-  textEl.style.left = '164px'; textEl.style.top = '140px'; textEl.style.width = '650px';
-  textEl.innerHTML = `
-    <div class="el-toolbar">
-      <span class="handle">⠿</span><button class="fsize" data-d="-2">A-</button><button class="fsize" data-d="2">A+</button>
-      <span class="swatch" style="background:#111" data-c="#111"></span><span class="swatch" style="background:#1a73e8" data-c="#1a73e8"></span>
-      <button class="del-btn">×</button>
-    </div>
-    <div class="content" contenteditable="true" style="font-size:18px;font-weight:600;color:#111;line-height:1.4;">
-      Your College Name<br>Department of Computer Engineering<br>Coding Club / Forum Name
-    </div>`;
-  poster.appendChild(textEl); wireElement(textEl);
-});
-
 // ---------- DOWNLOAD ----------
 document.getElementById('downloadBtn').addEventListener('click', ()=>{
   document.querySelectorAll('.el-toolbar, .resize-handle').forEach(e=>e.style.visibility='hidden');
+  // Hide "click to add" placeholder prompts so empty slots stay invisible in the exported image
+  document.querySelectorAll('.placeholder-logo, .photo-placeholder-label').forEach(e=>e.style.visibility='hidden');
   const posterEl = document.getElementById('poster');
   const prevTransform = posterEl.style.transform;
   posterEl.style.transform = 'none';
   html2canvas(posterEl, {scale:2, useCORS:true, backgroundColor:'#f5f8fc'}).then(canvas=>{
     posterEl.style.transform = prevTransform;
     document.querySelectorAll('.el-toolbar, .resize-handle').forEach(e=>e.style.visibility='');
+    document.querySelectorAll('.placeholder-logo, .photo-placeholder-label').forEach(e=>e.style.visibility='');
     const link = document.createElement('a');
     link.download = 'gdg-chapter-lead-poster.png';
     link.href = canvas.toDataURL('image/png');
